@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Scheduling Algorithm Calculator</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 20px;
+            text-align: center;
+            background-color: #0f122a;
+            /* color: white; */
+        }
+        h1 {
+            color: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        th, td{
+            border: 2px solid white;
+            text-align: center;
+            padding: 10px;
+        }
+        th{
+            background-color: #e6e6e6;
+        }
+        td{
+            color: white;
+        }
+        .button-container{
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .button {
+            padding: 10px 30px;
+            border-radius: 20px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            text-transform: capitalize;
+            font-weight: bold;
+        }
+        .button:hover{
+            background-color: #004d8f;
+            color: white;
+        }
+        .button.reset {
+            background-color: #DC3545;
+        }
+        .button.reset:hover {
+            background-color: #a71d2a;
+        }
+        .hidden{
+            display: none;
+        }
+        .dropdown-container{
+            margin: 20px;
+        }
+        label {
+            color: white;
+        }
+        select {
+            padding: 10px 20px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CPU Scheduling Algorithm Calculator</h1>
+    <!-- dropdown menu -->
+     <div class="dropdown-container">
+        <label for="algorithmType">Select Algorithm</label>
+        <select id="algorithmType"> 
+            <option value="" disabled selected>Algorithm</option>
+            <option value="fifo">First In First Out (FIFO)</option>
+            <option value="sjf">Shortest Job First (SJF)</option>
+        </select>
+     </div>
+     <!-- buttons -->
+      <div class="button-container">
+        <button id="addRow" class="button">Add row</button>
+        <button id="calculate" class="button">Calculate</button>
+        <button id="resetTable" class="button reset">Reset</button>
+      </div>
+
+      <!-- table -->
+       <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Process</th>
+                <th>Arrival Time (AT)</th>
+                <th>Burst Time (BT)</th>
+                <th class="hidden result-header">End Time (ET)</th>
+                <th class="hidden result-header">Turn Around Time (TT)</th>
+                <th class="hidden result-header">Waiting Time (WT)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td  class="hidden result"></td>
+                <td  class="hidden result"></td>
+                <td  class="hidden result"></td>
+            </tr>
+        </tbody>
+       </table>
+
+</body>
+</html>
