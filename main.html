@@ -4,73 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CPU Scheduling Algorithm Calculator</title>
-    <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            margin: 20px;
-            text-align: center;
-            background-color: #0f122a;
-            /* color: white; */
-        }
-        h1 {
-            color: white;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-        th, td{
-            border: 2px solid white;
-            text-align: center;
-            padding: 10px;
-        }
-        th{
-            background-color: #e6e6e6;
-        }
-        td{
-            color: white;
-        }
-        .button-container{
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        .button {
-            padding: 10px 30px;
-            border-radius: 20px;
-            border: none;
-            background-color: #007BFF;
-            color: white;
-            cursor: pointer;
-            text-transform: capitalize;
-            font-weight: bold;
-        }
-        .button:hover{
-            background-color: #004d8f;
-            color: white;
-        }
-        .button.reset {
-            background-color: #DC3545;
-        }
-        .button.reset:hover {
-            background-color: #a71d2a;
-        }
-        .hidden{
-            display: none;
-        }
-        .dropdown-container{
-            margin: 20px;
-        }
-        label {
-            color: white;
-        }
-        select {
-            padding: 10px 20px;
-            border-radius: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="script.js"></script>
 </head>
 <body>
     <h1>CPU Scheduling Algorithm Calculator</h1>
@@ -81,6 +16,9 @@
             <option value="" disabled selected>Algorithm</option>
             <option value="fifo">First In First Out (FIFO)</option>
             <option value="sjf">Shortest Job First (SJF)</option>
+            <option value="priority">Priority</option>
+            <option value="srtf">Shortest Remaining Time First (SRTF)</option>
+            <option value="rr">Round Robin (RR) </option>
         </select>
      </div>
      <!-- buttons -->
@@ -97,6 +35,7 @@
                 <th>Process</th>
                 <th>Arrival Time (AT)</th>
                 <th>Burst Time (BT)</th>
+                <!-- <th class="hidden result-header"> Priority</th> -->
                 <th class="hidden result-header">End Time (ET)</th>
                 <th class="hidden result-header">Turn Around Time (TT)</th>
                 <th class="hidden result-header">Waiting Time (WT)</th>
@@ -104,15 +43,52 @@
         </thead>
         <tbody>
             <tr>
+                <td>1</td>
                 <td contenteditable="true"></td>
                 <td contenteditable="true"></td>
-                <td contenteditable="true"></td>
+                <!-- <td contenteditable="true" class="hidden result"></td> -->
                 <td  class="hidden result"></td>
                 <td  class="hidden result"></td>
                 <td  class="hidden result"></td>
             </tr>
         </tbody>
        </table>
+    
+       <!-- Gantt Chart Section -->
+       <div class="gantt-container">
+        <div class="gantt-chart">
+            <div class="gantt-bar">P1</div>
+        </div>
+        <div class="gantt-timeline">
+            <div class="gantt-tick">0</div>
+            <div class="gantt-tick">1</div>
+        </div>
+       </div>
+
+       <!-- CPU util -->
+        <div class="formulas-container">
+            <div class="cpu-utilization">
+                <p class="tooltip">CPU Utilization</p>
+                <p id="cpuUtilizationFormula">
+                    Formula: (CPU Busy Time / Total Time) × 100
+                </p>
+            </div>
+            <div class="att">
+                <p class="tooltip">Average Turn Around Time</p>
+                <p id="attFormula">
+                    Formula: Turnaround Time = Completion Time - Arrival Time
+                </p>
+                
+            </div>
+            <div class="awt">
+                <p class="tooltip">Average Waiting Time
+                    
+                </p>
+                <p id="awtFormula">
+                    Formula: Waiting Time = Turnaround Time - Burst Time
+                </p>
+            </div>
+        </div>
 
 </body>
 </html>
