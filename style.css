@@ -129,3 +129,36 @@ p {
     margin: 5px 0;
 }
 
+.formulas-container {
+    /* width: 100% auto; */
+    display: flex;
+    flex-direction: row; /* Aligns sections horizontally */
+    justify-content: space-between; /* Evenly distributes space between sections */
+    align-items: stretch; /* Ensures all sections align vertically */
+    gap: 20px; /* Adds spacing between sections */
+    padding: 20px;
+}
+
+.section {
+    flex: 1; /* Ensures all sections take equal width */
+    max-width: 400px; /* Sets a maximum width for sections */
+    background: #fff;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.tooltip {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.formula {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #333;
+}
+.highlight{
+    font-weight: bold;
+    border: 1px solid #004d8f;
+    padding: 5px;
+}

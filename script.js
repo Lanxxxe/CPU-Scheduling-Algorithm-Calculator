@@ -45,6 +45,18 @@ resetTableButton.addEventListener('click', () => {
     document.querySelectorAll('.result-header').forEach(header => header.classList.add('hidden'));
     document.querySelectorAll('.result').forEach(cell => cell.classList.add('hidden'));
 
+    // Reset CPU, AWT, ATT values to default
+    document.getElementById("totalTurnaroundTime").textContent = "Total TT";
+    document.getElementById("totalProcessesTT").textContent = "Processes";
+    document.getElementById("attResult").textContent = " 0";
+
+    document.getElementById("totalWaitingTime").textContent = "Total WT";
+    document.getElementById("totalProcessesWT").textContent = "processes";
+    document.getElementById("awtResult").textContent = " 0";
+
+    document.getElementById("cpuBusy").textContent = "Sum (BT)";
+    document.getElementById("totalTime").textContent = "Total End Time";
+    document.getElementById("cpuUtilizationResult").textContent = " 0%";
 });
 
 // Calculate CPU scheduling
@@ -71,6 +83,11 @@ calculateButton.addEventListener('click', () => {
         return;
     }
 
+    let totalTurnaroundTime = 0; // Initialize total turnaround time
+    let totalWaitingTime = 0;    // Initialize total waiting time
+    let cpuBusyTime = 0;         // Initialize CPU busy time
+    let totalTime = 0;           // Initialize total time
+
     if (algorithm === 'fifo') {
         processes.sort((a, b) => a.arrivalTime - b.arrivalTime); // Sort by arrival time
         let currentTime = 0;
@@ -80,7 +97,16 @@ calculateButton.addEventListener('click', () => {
             process.turnAroundTime = process.endTime - process.arrivalTime;
             process.waitingTime = process.turnAroundTime - process.burstTime;
             currentTime = process.endTime;
+
+            // Accumulate total times
+            totalTurnaroundTime += process.turnAroundTime;
+            totalWaitingTime += process.waitingTime;
+
+            // Calculate CPU busy time (if needed for utilization)
+            cpuBusyTime += process.burstTime;
+            totalTime = Math.max(totalTime, process.endTime); // Update total time
         });
+
     } else if (algorithm === 'sjf') {
         let currentTime = 0;
 
@@ -118,4 +144,23 @@ calculateButton.addEventListener('click', () => {
 
     // Show result headers
     document.querySelectorAll('.result-header').forEach(header => header.classList.remove('hidden'));
+
+    // Calculate and display final results
+    const totalProcesses = processes.length;
+    const averageTurnaroundTime = (totalTurnaroundTime / totalProcesses).toFixed(2);
+    const averageWaitingTime = (totalWaitingTime / totalProcesses).toFixed(2);
+    const cpuUtilization = ((cpuBusyTime / totalTime) * 100).toFixed(2);
+
+    // Update the result elements in the DOM
+    document.getElementById("totalTurnaroundTime").textContent = totalTurnaroundTime;
+    document.getElementById("totalProcessesTT").textContent = totalProcesses;
+    document.getElementById("attResult").textContent = averageTurnaroundTime;
+
+    document.getElementById("totalWaitingTime").textContent = totalWaitingTime;
+    document.getElementById("totalProcessesWT").textContent = totalProcesses;
+    document.getElementById("awtResult").textContent = averageWaitingTime;
+
+    document.getElementById("cpuBusy").textContent = cpuBusyTime;
+    document.getElementById("totalTime").textContent = totalTime;
+    document.getElementById("cpuUtilizationResult").textContent = `${cpuUtilization}%`;
 });

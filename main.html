@@ -23,7 +23,7 @@
      </div>
      <!-- buttons -->
       <div class="button-container">
-        <button id="addRow" class="button">Add row</button>
+        <button id="addRow" class="button">Add Process</button>
         <button id="calculate" class="button">Calculate</button>
         <button id="resetTable" class="button reset">Reset</button>
       </div>
@@ -65,30 +65,32 @@
         </div>
        </div>
 
-       <!-- CPU util -->
-        <div class="formulas-container">
-            <div class="cpu-utilization">
-                <p class="tooltip">CPU Utilization</p>
-                <p id="cpuUtilizationFormula">
-                    Formula: (CPU Busy Time / Total Time) × 100
-                </p>
-            </div>
-            <div class="att">
-                <p class="tooltip">Average Turn Around Time</p>
-                <p id="attFormula">
-                    Formula: Turnaround Time = Completion Time - Arrival Time
-                </p>
-                
-            </div>
-            <div class="awt">
-                <p class="tooltip">Average Waiting Time
-                    
-                </p>
-                <p id="awtFormula">
-                    Formula: Waiting Time = Turnaround Time - Burst Time
-                </p>
-            </div>
+    
+    <div class="formulas-container">
+        <!-- CPU Utilization Section -->
+        <div class="section">
+            <p class="tooltip">CPU Utilization</p>
+            <p id="cpuUtilizationFormula" class="formula">
+                (<span id="cpuBusy">Sum (BT) </span> / <span id="totalTime">Total End Time</span>) × 100 = <span id="cpuUtilizationResult" class="highlight"> 0%</span>
+            </p>
         </div>
+
+        <!-- Average Turnaround Time Section -->
+        <div class="section">
+            <p class="tooltip">Average Turnaround Time</p>
+            <p id="attFormula" class="formula">
+                <span id="totalTurnaroundTime">Total TT </span> / <span id="totalProcessesTT">Process</span> = <span id="attResult" class="highlight"> 0</span>
+            </p>
+        </div>
+
+        <!-- Average Waiting Time Section -->
+        <div class="section">
+            <p class="tooltip">Average Waiting Time</p>
+            <p id="awtFormula" class="formula">
+                <span id="totalWaitingTime">Total WT</span> / <span id="totalProcessesWT"">Process </span> = <span id="awtResult" class="highlight"> 0</span>
+            </p>
+        </div>
+    </div>
 
 </body>
 </html>
