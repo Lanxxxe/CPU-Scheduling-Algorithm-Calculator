@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/mainstyle.css">
+    <title>Shortest Job First (SJF) Scheduling</title>
+
+</head>
+
+<body>  
+  <div class="container">
+    <div class="title">
+      <h1 class="up">Non-Preemptive</h1>
+      <h1 class="down">Shortest Job First (SJF)</h1>
+    </div>
+ 
+
+  <div class="content-container">
+    <div class="button-container">
+      <button onclick="handleAddRow()" id="addRow" class="button add">Add Process</button>
+      <button onclick="calculateSJF()" id="calculate" class="button">Calculate</button> 
+      <button onclick="handleResetButton()" id="resetButton" class="button reset">Reset</button>
+    </div> 
+    <table id="processTable">    
+      <thead>
+          <tr>
+              <th>Process ID</th>
+              <th>Arrival Time</th>
+              <th>Burst Time</th>
+              <th>End Time</th>
+              <th>Actions</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <td><input type="number" value="1" disabled></td>
+              <td><input type="number" placeholder="AT" min="0"></td>
+              <td><input type="number" placeholder="BT" min="0"></td>
+              <td><input type="number" placeholder="--" disabled></td>
+              <td><button onclick="removeRow(this)" class="button remove">Remove</button></td>
+          </tr>
+          <tr>
+              <td><input type="number" value="2" disabled></td>
+              <td><input type="number" placeholder="AT" min="0"></td>
+              <td><input type="number" placeholder="BT" min="0"></td>
+              <td><input type="number" placeholder="--" disabled></td>
+              <td><button onclick="removeRow(this)" class="button remove">Remove</button></td>
+          </tr>
+        
+          
+      </tbody>
+    </table>
+
+    <div class="gantt chart">
+    </div>
+
+    <div class="formulas-container">
+      <div class="section">
+        <p class="tooltip">CPU Utilization</p>
+        <p id="cpuUtilizationFormula" class="formula">
+          (<span id="cpuBusy">Sum (BT)</span> / <span id="totalTime">Total End Time</span>) × 100 = <span id="cpuUtilizationResult" class="highlight">0%</span>
+        </p>
+      </div>
+
+      <div class="section">
+        <p class="tooltip">Average Turnaround Time</p>
+        <p id="attFormula" class="formula">
+          <span id="totalTurnaroundTime">Total TT</span> / <span id="totalProcessesTT">Process</span> = <span id="attResult" class="highlight">0</span>
+        </p>
+      </div>
+
+      <div class="section">
+        <p class="tooltip">Average Waiting Time</p>
+        <p id="awtFormula" class="formula">
+          <span id="totalWaitingTime">Total WT</span> / <span id="totalProcessesWT">Process</span> = <span id="awtResult" class="highlight">0</span>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script src="./scripts/sjf.js"></script>
+</body>
+</html>

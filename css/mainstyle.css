@@ -202,3 +202,12 @@ p {
     gap: 5px; /* Adjust button gap on smaller screens */
   }
 }
+
+
+.gantt-container {
+  overflow-x: auto;
+  white-space: nowrap;
+  margin: 20px 0;
+  min-height: 100px;
+}
+

@@ -2,23 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FIFO</title>
+  <title>Round Robin Scheduling</title>
   <link rel="stylesheet" href="css/mainstyle.css">
-  
+
+</head>
 <body>
   <div class="container">
     <div class="title">
-      <h1 class="up">Non-Preemptive</h1>
-      <h1 class="down">First In First Out</h1>
+      <h1 class="up">Preemptive</h1>
+      <h1 class="down">Round Robin</h1>
     </div>
 
     <div class="content-container">
       <div class="button-container">
         <button id="addRow" class="button add">Add Process</button>
-        <button id="calculate" class="button">Calculate</button>
+        <button class="button" onclick="calculateSchedule()">Calculate</button>
         <button id="resetTable" class="button reset">Reset</button>
+      </div>
+
+      <div class="quantum-container" style="padding-bottom: 10px;">
+        <label for="timeQuantum" style="text-align: center;">Time Quantum:</label>
+        <input type="number" id="timeQuantum" placeholder="Enter time quantum" required>
       </div>
 
       <table id="dataTable">
@@ -43,9 +48,12 @@
           </tr>
         </tbody>
       </table>
+
       <div class="gantt chart">
-        <h2></h2>
+        <h2>Gantt Chart</h2>
+        <p id="ganttChart">-</p>
       </div>
+
       <div class="formulas-container">
         <div class="section">
           <p class="tooltip">CPU Utilization</p>
@@ -67,9 +75,10 @@
             <span id="totalWaitingTime">Total WT</span> / <span id="totalProcessesWT">Process</span> = <span id="awtResult" class="highlight">0</span>
           </p>
         </div>
+      </div>
     </div>
   </div>
 
-  <script src="./scripts/fifo.js"></script>
+  <script src="./scripts/roundrobin.js"></script>
 </body>
 </html>
