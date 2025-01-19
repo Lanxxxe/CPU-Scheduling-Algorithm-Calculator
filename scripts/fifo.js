@@ -88,7 +88,7 @@ const handleResetButton = () => {
 const renderGanttChart = (processes) => {
     const ganttDiv = document.querySelector('.gantt.chart');
     ganttDiv.innerHTML = '<h2>Gantt Chart - FIFO (First In First Out)</h2>';
-    
+
     // Create legend
     const legendContainer = document.createElement('div');
     legendContainer.className = 'gantt-legend';
@@ -102,7 +102,7 @@ const renderGanttChart = (processes) => {
     uniqueProcesses.forEach(processId => {
         const legendItem = document.createElement('div');
         legendItem.style.cssText = 'display: flex; align-items: center; margin-right: 15px;';
-        
+
         const colorBox = document.createElement('div');
         colorBox.style.cssText = `
             width: 20px;
@@ -111,15 +111,15 @@ const renderGanttChart = (processes) => {
             background-color: ${getProcessColor(parseInt(processId))};
             border: 1px solid #666;
         `;
-        
+
         const label = document.createElement('span');
         label.textContent = `Process ${processId}`;
-        
+
         legendItem.appendChild(colorBox);
         legendItem.appendChild(label);
         legendContainer.appendChild(legendItem);
     });
-    
+
     const chartContainer = document.createElement('div');
     chartContainer.className = 'gantt-container';
     chartContainer.style.cssText = 'position: relative; margin-top: 20px; padding: 10px;';
@@ -129,37 +129,41 @@ const renderGanttChart = (processes) => {
     const scale = containerWidth / totalTime;
 
     // Create process bars
-    processes.forEach(process => {
+    processes.forEach((process, index) => {
         const startTime = process.endTime - process.burstTime;
-        if (startTime > 0) {
-            // Add idle time bar if there's a gap
+        const prevEndTime = index > 0 ? processes[index - 1].endTime : 0;
+
+        // Debugging log for idle time and process timings
+        console.log(
+            `Process ${process.process} | Start Time: ${startTime}, End Time: ${process.endTime}, Arrival Time: ${process.arrivalTime}`
+        );
+
+        // Add idle time bar if there's a gap
+        if (startTime > prevEndTime) {
             const idleBar = document.createElement('div');
-            const prevEndTime = processes[processes.indexOf(process) - 1]?.endTime || 0;
-            if (startTime > prevEndTime) {
-                const idleWidth = (startTime - prevEndTime) * scale;
-                idleBar.style.cssText = `
-                    position: absolute;
-                    height: 40px;
-                    width: ${idleWidth}px;
-                    left: ${prevEndTime * scale}px;
-                    top: 20px;
-                    background-color: #f0f0f0;
-                    border: 1px solid #666;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 12px;
-                    color: #666;
-                `;
-                idleBar.textContent = 'Idle';
-                chartContainer.appendChild(idleBar);
-            }
+            const idleWidth = (startTime - prevEndTime) * scale;
+            idleBar.style.cssText = `
+                position: absolute;
+                height: 40px;
+                width: ${idleWidth}px;
+                left: ${prevEndTime * scale}px;
+                top: 20px;
+                background-color: #f0f0f0;
+                border: 1px solid #666;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                color: #666;
+            `;
+            idleBar.textContent = 'Idle';
+            chartContainer.appendChild(idleBar);
         }
 
         const bar = document.createElement('div');
         const width = process.burstTime * scale;
         const left = startTime * scale;
-        
+
         bar.style.cssText = `
             position: absolute;
             height: 40px;
@@ -174,13 +178,13 @@ const renderGanttChart = (processes) => {
             font-size: 12px;
             color: white;
         `;
-        
+
         bar.textContent = `P${process.process}`;
         bar.title = `Process ${process.process}
 Start Time: ${startTime}
 End Time: ${process.endTime}
 Burst Time: ${process.burstTime}`;
-        
+
         chartContainer.appendChild(bar);
     });
 
@@ -202,10 +206,10 @@ Burst Time: ${process.burstTime}`;
     }
 
     chartContainer.appendChild(timelineContainer);
-    // ganttDiv.appendChild(legendContainer);
     ganttDiv.appendChild(chartContainer);
-}
+};
 
+// FIFO Calculation and Debugging
 const handleCalculateButton = () => {
     const rows = Array.from(dataTable.querySelectorAll('tr'));
     const processes = rows.map((row, index) => ({
@@ -223,15 +227,15 @@ const handleCalculateButton = () => {
         return;
     }
 
+    // Sort by arrival time for FIFO
+    processes.sort((a, b) => a.arrivalTime - b.arrivalTime);
+    console.log("Sorted Processes (FIFO):", processes);
+
     let totalTurnaroundTime = 0;
     let totalWaitingTime = 0;
     let cpuBusyTime = 0;
-    let totalTime = 0;
-
-    // Sort by arrival time for FIFO
-    processes.sort((a, b) => a.arrivalTime - b.arrivalTime);
-
     let currentTime = 0;
+
     processes.forEach(process => {
         process.endTime = Math.max(currentTime, process.arrivalTime) + process.burstTime;
         process.turnAroundTime = process.endTime - process.arrivalTime;
@@ -241,11 +245,10 @@ const handleCalculateButton = () => {
         totalTurnaroundTime += process.turnAroundTime;
         totalWaitingTime += process.waitingTime;
         cpuBusyTime += process.burstTime;
-        totalTime = Math.max(totalTime, process.endTime);
     });
 
-    // Sort back by original process index
-    processes.sort((a, b) => a.processIndex - b.processIndex);
+    // Debugging log for final timings
+    console.log("Final Process Timings:", processes);
 
     // Update table results
     rows.forEach((row, index) => {
@@ -260,7 +263,7 @@ const handleCalculateButton = () => {
     const totalProcesses = processes.length;
     const averageTurnaroundTime = (totalTurnaroundTime / totalProcesses).toFixed(2);
     const averageWaitingTime = (totalWaitingTime / totalProcesses).toFixed(2);
-    const cpuUtilization = ((cpuBusyTime / totalTime) * 100).toFixed(2);
+    const cpuUtilization = ((cpuBusyTime / currentTime) * 100).toFixed(2);
 
     document.getElementById("totalTurnaroundTime").textContent = totalTurnaroundTime;
     document.getElementById("totalProcessesTT").textContent = totalProcesses;
@@ -271,12 +274,12 @@ const handleCalculateButton = () => {
     document.getElementById("awtResult").textContent = averageWaitingTime;
 
     document.getElementById("cpuBusy").textContent = cpuBusyTime;
-    document.getElementById("totalTime").textContent = totalTime;
+    document.getElementById("totalTime").textContent = currentTime;
     document.getElementById("cpuUtilizationResult").textContent = `${cpuUtilization}%`;
 
     // Render Gantt chart
     renderGanttChart(processes);
-}
+};
 
 // Calculate button functionality
 calculateButton.addEventListener('click', handleCalculateButton);
