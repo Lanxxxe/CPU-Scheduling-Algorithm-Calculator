@@ -5,48 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Priority</title>
-  <link rel="stylesheet" href="mainstyle.css">
-
-  <style>
-    .gantt-chart-container {
-      margin: 0 auto;
-      width: 95%;
-    }
-
-    .gantt-chart {
-      position: relative;
-      width: 100%;
-      height: 20px;
-      background-color: #f4f4f4;
-      border: 1px solid #ddd;
-      margin-top: 10px;
-    }
-
-    .gantt-bar {
-      position: absolute;
-      top: 0;
-      height: 100%;
-      color: white;
-      text-align: center;
-      line-height: 30px;
-      font-size: 12px;
-      border-radius: 5px;
-    }
-
-    .time-scale {
-      display: flex;
-      margin-bottom: 5px;
-    }
-
-    .time-unit {
-      width: 20px;
-      text-align: center;
-    }
-
-    .gantt-bars {
-      position: relative;
-    }
-  </style>
+  <link rel="stylesheet" href="css/mainstyle.css">
 
 </head>
 <body>
@@ -88,9 +47,8 @@
         </tbody>
       </table>
 
-      <div class="gantt-chart-container">
-        <h2>Gantt Chart</h2>
-        <div id="ganttChart" class="gantt-chart"></div>
+      <div class="gantt chart">
+        <h2></h2>
       </div>
 
       <div class="formulas-container">
@@ -118,129 +76,6 @@
     </div>
   </div>
 
-  <script>
-    const addRowButton = document.getElementById("addRow");
-    const calculateButton = document.getElementById("calculate");
-    const resetButton = document.getElementById("resetTable");
-    const dataTable = document.getElementById("dataTable").querySelector("tbody");
-
-    let processCounter = 2;
-
-    // Add Row Event
-    addRowButton.addEventListener("click", () => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${processCounter}</td>
-        <td><input type="number" class="arrivalTime" placeholder="AT" min="0"></td>
-        <td><input type="number" class="burstTime" placeholder="BT" min="0"></td>
-        <td><input type="number" class="priority" placeholder="Priority" min="0"></td>
-        <td class="endTime">-</td>
-        <td class="turnaroundTime">-</td>
-        <td class="waitingTime">-</td>
-      `;
-      dataTable.appendChild(row);
-      processCounter++;
-    });
-
-
-    // Calculate Button Event
-    calculateButton.addEventListener("click", () => {
-      const rows = Array.from(dataTable.querySelectorAll("tr"));
-      const processes = rows.map(row => {
-        return {
-          processID: row.querySelector("td:first-child").textContent,
-          arrivalTime: parseInt(row.querySelector(".arrivalTime").value || 0),
-          burstTime: parseInt(row.querySelector(".burstTime").value || 0),
-          priority: parseInt(row.querySelector(".priority").value || 0),
-          rowElement: row
-        };
-      });
-
-      // Sort processes by priority, then by arrival time
-      processes.sort((a, b) => {
-        if (a.priority === b.priority) {
-          return a.arrivalTime - b.arrivalTime;
-        }
-        return a.priority - b.priority;
-      });
-
-      let totalTurnaroundTime = 0;
-      let totalWaitingTime = 0;
-      let cpuBusyTime = 0;
-      let totalTime = 0;
-      let currentTime = 0;
-
-      processes.forEach(process => {
-        if (currentTime < process.arrivalTime) {
-          currentTime = process.arrivalTime;
-        }
-
-        const endTime = currentTime + process.burstTime;
-        const turnaroundTime = endTime - process.arrivalTime;
-        const waitingTime = turnaroundTime - process.burstTime;
-
-        totalTurnaroundTime += turnaroundTime;
-        totalWaitingTime += waitingTime;
-        cpuBusyTime += process.burstTime;
-        totalTime = Math.max(totalTime, endTime);
-
-        // Update table with calculated values
-        process.rowElement.querySelector(".endTime").textContent = endTime;
-        process.rowElement.querySelector(".turnaroundTime").textContent = turnaroundTime;
-        process.rowElement.querySelector(".waitingTime").textContent = waitingTime;
-
-        currentTime = endTime;
-      });
-
-      // Calculate and display final results
-      const totalProcesses = processes.length;
-      const averageTurnaroundTime = (totalTurnaroundTime / totalProcesses).toFixed(2);
-      const averageWaitingTime = (totalWaitingTime / totalProcesses).toFixed(2);
-      const cpuUtilization = ((cpuBusyTime / totalTime) * 100).toFixed(2);
-
-      // Update result elements in the DOM
-      document.getElementById("totalTurnaroundTime").textContent = totalTurnaroundTime;
-      document.getElementById("totalProcessesTT").textContent = totalProcesses;
-      document.getElementById("attResult").textContent = averageTurnaroundTime;
-
-      document.getElementById("totalWaitingTime").textContent = totalWaitingTime;
-      document.getElementById("totalProcessesWT").textContent = totalProcesses;
-      document.getElementById("awtResult").textContent = averageWaitingTime;
-
-      document.getElementById("cpuBusy").textContent = cpuBusyTime;
-      document.getElementById("totalTime").textContent = totalTime;
-      document.getElementById("cpuUtilizationResult").textContent = `${cpuUtilization}%`;
-    });
-
-
-    // Reset Table Event
-    resetButton.addEventListener('click', () => {
-      const rows = dataTable.querySelectorAll('tr');
-      rows.forEach((row, index) => {
-        if (index !== 0) {
-          row.remove();
-        }
-      });
-      processCounter = 2;
-
-      // Reset first row
-      const firstRowCells = rows[0].querySelectorAll('td');
-      firstRowCells[1].innerHTML = '<input type="number" class="arrivalTime" placeholder="AT">';
-      firstRowCells[2].innerHTML = '<input type="number" class="burstTime" placeholder="BT">';
-      firstRowCells[3].innerHTML = '<input type="number" class="priority" placeholder="Priority">';
-      ["4", "5", "6"].forEach(i => (firstRowCells[i].textContent = "-"));
-      
-      // Reset results
-      document.getElementById("totalTurnaroundTime").textContent = "Total TT";
-      document.getElementById("totalProcessesTT").textContent = "Processes";
-      document.getElementById("attResult").textContent = "0";
-      document.getElementById("totalWaitingTime").textContent = "Total WT";
-      document.getElementById("totalProcessesWT").textContent = "Processes";
-      document.getElementById("awtResult").textContent = "0";
-      document.getElementById("cpuBusy").textContent = "Sum (BT)";
-      document.getElementById("totalTime").textContent = "Total End Time";
-      document.getElementById("cpuUtilizationResult").textContent = "0%";
-    });
-  </script>
+  <script src="./scripts/priority.js"></script>
 </body>
 </html>

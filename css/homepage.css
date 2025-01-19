@@ -1,0 +1,154 @@
+body {
+    background-color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    color: white;
+    margin: 0;
+    display: flex;
+    justify-content: center; /* Horizontal centering */
+    align-items: center; /* Vertical centering */
+    height: 100vh;
+  }
+  
+  .container{
+    background-color: #353333;
+    width: 50%;
+    margin: 0 auto;
+    border-radius: 10px;
+    padding: 20px ;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Subtle outer shadow */
+    border-radius: 10px;
+    border: 5px solid transparent; /* Initial transparent border */
+    
+    background-clip: padding-box; /* Ensures border doesn't cover content */
+    animation: borderAnimation 4s ease-in-out infinite; /* Animation for border */
+    
+  }
+  @keyframes borderAnimation {
+    0% {
+      border-color: rgba(255, 111, 97, 0.5); /* Slightly transparent */
+      box-shadow: 0 0 30px rgba(255, 111, 97, 0.8);
+    }
+    50% {
+      border-color: rgba(106, 27, 154, 0.5);
+      box-shadow: 0 0 30px rgba(106, 27, 154, 0.8);
+    }
+    100% {
+      border-color: rgba(0, 68, 204, 0.5);
+      box-shadow: 0 0 30px rgba(0, 68, 204, 0.8);
+    }
+  }
+
+  .title{
+    background-color: #232325;
+    width: 95%;
+    margin: auto;
+    border-radius: 15px;
+    padding: 10px;
+    box-shadow: 
+      inset 4px 4px 8px rgba(0, 0, 0, 0.6), /* Dark shadow for depth */
+      inset -4px -4px 8px rgba(255, 255, 255, 0.2); /* Light shadow for highlight */
+  }
+  
+  h1{
+    margin: 0;
+    font-size: 32px;
+  }
+  h1.up {
+    color: #F9F9F9; /* Light color for the top title */
+  }
+  h1.down {
+    color: #00C8FF; /* Bright blue for the bottom title */
+  }
+
+  
+  p{
+      text-transform: uppercase;
+      color: white;
+      color: #F0F0F0;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 0;
+      margin-top: 0;
+  }
+  
+  .algorithm-container{
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 90%;
+    /* background-color: #ff6953; */
+    margin: 20px   auto;
+  }
+
+  .non-preemptive, .preemptive{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 20px;
+    flex: 1;
+    
+  }
+  button {
+    width: 80%;
+    max-width: 300px;
+    margin: 0 auto;
+    
+    cursor: pointer;
+    padding: 12px 26px;
+    padding-bottom: 18px;
+    border: 0;
+    font-size: 16px;
+    transition: all 150ms ease-in-out;
+
+    border-radius: 20px;
+
+    color: #071432;
+    font-weight: bold;
+    background: #fff;
+    box-shadow: rgba(99, 99, 99, 0.2) 0 2px 8px 0, inset 0px -6px 0px rgba(0, 0, 0, 0.1), inset 0px -2px 0px rgba(0, 0, 0, 0.15);
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 4px 10px,  /* Outer shadow */
+            inset 0px -6px 0px rgba(0, 0, 0, 0.3),  /* Inner shadow (bottom) */
+            inset 0px -2px 0px rgba(0, 0, 0, 0.5); /* Inner shadow (top) */
+  }
+
+  button:hover {
+    filter: brightness(1.98);
+  }
+
+  .button-36:active {
+    filter: brightness(0.97);
+    padding-top: 15px;
+    padding-bottom: 15px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0 2px 6px 0, inset 0px -1px 0px rgba(0, 0, 0, 0.15);
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      width: 90%; /* More width on smaller screens */
+      padding: 10px; /* Adjust padding */
+    }
+    .algorithm-container {
+      flex-direction: column; /* Stack buttons vertically on smaller screens */
+      align-items: center;
+    }
+    .non-preemptive, .preemptive {
+      width: 100%; /* Full width for buttons on small screens */
+    }
+    .preemptive{
+      padding-top: 20px;
+    }
+    button{
+      font-size: 14px;
+      width: 90%;
+    }
+    
+  }
+  @media (max-width: 480px){
+
+  }
+
+  
