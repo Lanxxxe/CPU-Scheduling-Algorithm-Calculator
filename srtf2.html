@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SRTF</title>
+  <link rel="stylesheet" href="mainstyle.css">
+</head>
+<body>
+  <div class="container">
+    <div class="title">
+      <h1 class="up">Preemptive</h1>
+      <h1 class="down">Shortest Remaining Time First</h1>
+    </div>
+
+    <div class="content-container">
+      <div class="button-container">
+        <button id="addRow" class="button add">Add Process</button>
+        <button id="calculate" class="button">Calculate</button>
+        <button id="resetTable" class="button reset">Reset</button>
+      </div>
+
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>Process ID</th>
+            <th>Arrival Time (AT)</th>
+            <th>Burst Time (BT)</th>
+            <th>End Time (ET)</th>
+            <th>Turnaround Time (TT)</th>
+            <th>Waiting Time (WT)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><input type="number" class="arrivalTime" placeholder="AT" min="0" /></td>
+            <td><input type="number" class="burstTime" placeholder="BT" min="0" /></td>
+            <td class="endTime">-</td>
+            <td class="turnaroundTime">-</td>
+            <td class="waitingTime">-</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="gantt chart">
+        <h2>Gantt Chart</h2>
+      </div>
+      <div class="formulas-container">
+        <div class="section">
+          <p class="tooltip">CPU Utilization</p>
+          <p id="cpuUtilizationFormula" class="formula">
+            (<span id="cpuBusy">Sum (BT)</span> / <span id="totalTime">Total End Time</span>) × 100 = <span id="cpuUtilizationResult" class="highlight">0%</span>
+          </p>
+        </div>
+    
+        <div class="section">
+          <p class="tooltip">Average Turnaround Time</p>
+          <p id="attFormula" class="formula">
+            <span id="totalTurnaroundTime">Total TT</span> / <span id="totalProcessesTT">Process</span> = <span id="attResult" class="highlight">0</span>
+          </p>
+        </div>
+    
+        <div class="section">
+          <p class="tooltip">Average Waiting Time</p>
+          <p id="awtFormula" class="formula">
+            <span id="totalWaitingTime">Total WT</span> / <span id="totalProcessesWT">Process</span> = <span id="awtResult" class="highlight">0</span>
+          </p>
+        </div>
+    </div>
+  </div>
+
+  <script>
+    let processes = [];
+    let processId = 2;
+
+    // Add new row to the table
+    document.getElementById("addRow").addEventListener("click", addRow);
+    function addRow() {
+        const table = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
+        const row = table.insertRow();
+        row.innerHTML = `
+            <td>${processId}</td>
+            <td><input type="number" class="arrivalTime" placeholder="AT" min="0" /></td>
+            <td><input type="number" class="burstTime" placeholder="BT" min="0" /></td>
+            <td class="endTime">-</td>
+            <td class="turnaroundTime">-</td>
+            <td class="waitingTime">-</td>
+        `;
+        processId++;
+    }
+
+    // Reset Table Event
+  document.getElementById("resetTable").addEventListener("click", () => {
+    const table = document.getElementById("dataTable");
+    const rows = table.querySelectorAll("tbody tr");
+
+    // Remove all rows except the first one
+    rows.forEach((row, index) => {
+        if (index !== 0) row.remove();
+    });
+
+    // Reset the process counter
+    processId = 2;
+
+    // Reset the first row's inputs and results
+    const firstRow = table.querySelector("tbody tr");
+    if (firstRow) {
+        const firstRowCells = firstRow.querySelectorAll("td");
+        firstRowCells[1].innerHTML = '<input type="number" class="arrivalTime" placeholder="AT" min="0">';
+        firstRowCells[2].innerHTML = '<input type="number" class="burstTime" placeholder="BT" min="0">';
+        ["3", "4", "5"].forEach(i => (firstRowCells[i].textContent = "-"));
+    }
+
+    // Reset formula results
+    document.getElementById("totalTurnaroundTime").textContent = "Total TT";
+    document.getElementById("totalProcessesTT").textContent = "Processes";
+    document.getElementById("attResult").textContent = "0";
+    document.getElementById("totalWaitingTime").textContent = "Total WT";
+    document.getElementById("totalProcessesWT").textContent = "Processes";
+    document.getElementById("awtResult").textContent = "0";
+    document.getElementById("cpuBusy").textContent = "Sum (BT)";
+    document.getElementById("totalTime").textContent = "Total End Time";
+    document.getElementById("cpuUtilizationResult").textContent = "0%";
+  });
+
+//   function renderGanttChart(processes) {
+//     const labels = processes.map(p => `P${p.id}`);
+//     const data = processes.map(p => p.endTime);
+
+//     // Chart.js logic to render Gantt chart (or modify accordingly)
+//     new Chart(document.getElementById('ganttChart'), {
+//         type: 'horizontalBar',
+//         data: {
+//             labels: labels,
+//             datasets: [{
+//                 data: data,
+//                 backgroundColor: 'rgba(0, 123, 255, 0.7)',
+//             }],
+//         },
+//         options: {
+//             scales: {
+//                 yAxes: [{
+//                     ticks: { beginAtZero: true },
+//                 }],
+//             },
+//         },
+//     });
+// }
+
+
+  document.getElementById("calculate").addEventListener("click", calculate);
+
+function calculate() {
+    const table = document.getElementById("dataTable");
+    const rows = table.querySelectorAll("tbody tr");
+
+    processes = [];
+
+    rows.forEach((row, index) => {
+        const arrivalTime = parseInt(row.querySelector(".arrivalTime").value);
+        const burstTime = parseInt(row.querySelector(".burstTime").value);
+
+        if (!isNaN(arrivalTime) && !isNaN(burstTime)) {
+            processes.push({ id: index + 1, arrivalTime, burstTime, remainingTime: burstTime });
+        }
+    });
+
+    processes.sort((a, b) => a.arrivalTime - b.arrivalTime);
+
+    const { results, totalIdleTime, totalBurstTime } = srtfCalculation(processes);
+
+    let totalTurnaroundTime = 0;
+    let totalWaitingTime = 0;
+
+    rows.forEach((row, index) => {
+        const result = results.find(r => r.id === index + 1);
+        if (result) {
+            row.querySelector(".endTime").textContent = result.endTime;
+            row.querySelector(".turnaroundTime").textContent = result.turnaroundTime;
+            row.querySelector(".waitingTime").textContent = result.waitingTime;
+
+            totalTurnaroundTime += result.turnaroundTime;
+            totalWaitingTime += result.waitingTime;
+        }
+    });
+
+    const avgTurnaroundTime = totalTurnaroundTime / processes.length;
+    const avgWaitingTime = totalWaitingTime / processes.length;
+    const cpuUtilization = ((totalBurstTime / (totalBurstTime + totalIdleTime)) * 100).toFixed(2);
+
+    document.getElementById("cpuBusy").textContent = totalBurstTime.toFixed(2);
+    document.getElementById("totalTime").textContent = (totalBurstTime + totalIdleTime).toFixed(2);
+    document.getElementById("cpuUtilizationResult").textContent = `${cpuUtilization}%`;
+
+    document.getElementById("totalTurnaroundTime").textContent = totalTurnaroundTime.toFixed(2);
+    document.getElementById("totalProcessesTT").textContent = processes.length;
+    document.getElementById("attResult").textContent = avgTurnaroundTime.toFixed(2);
+
+    document.getElementById("totalWaitingTime").textContent = totalWaitingTime.toFixed(2);
+    document.getElementById("totalProcessesWT").textContent = processes.length;
+    document.getElementById("awtResult").textContent = avgWaitingTime.toFixed(2);
+}
+
+function srtfCalculation(processes) {
+    let time = 0;
+    let completed = 0;
+    const n = processes.length;
+    const results = [];
+    let totalIdleTime = 0;
+    let prevTime = 0;
+    const totalBurstTime = processes.reduce((sum, p) => sum + p.burstTime, 0);
+
+    // Sort processes by arrival time to ensure they are handled in the right order
+    processes.sort((a, b) => a.arrivalTime - b.arrivalTime);
+
+    console.log("Processes after sorting by arrival time:", processes); // Debugging sorted processes
+
+    while (completed < n) {
+        let idx = -1;
+        let minRemaining = Infinity;
+
+        // Find the process with the shortest remaining time that has arrived
+        for (let i = 0; i < n; i++) {
+            if (processes[i].arrivalTime <= time && processes[i].remainingTime > 0) {
+                if (processes[i].remainingTime < minRemaining) {
+                    minRemaining = processes[i].remainingTime;
+                    idx = i;
+                }
+            }
+        }
+
+        // If no process is ready to run, idle time is added
+        if (idx === -1) {
+            totalIdleTime++;
+            time++; // Increase time during idle periods
+            console.log(`Idle at time: ${time}`); // Debugging idle time
+            continue;
+        }
+
+        // Process is running
+        processes[idx].remainingTime--;
+        time++;
+
+        console.log(`Time: ${time}, Process ID: ${processes[idx].id}, Remaining Time: ${processes[idx].remainingTime}`); // Debugging process progress
+
+        // If process is completed
+        if (processes[idx].remainingTime === 0) {
+            completed++;
+            const endTime = time;
+            const turnaroundTime = endTime - processes[idx].arrivalTime;
+            const waitingTime = turnaroundTime - processes[idx].burstTime;
+
+            results.push({
+                id: processes[idx].id,
+                endTime,
+                turnaroundTime,
+                waitingTime,
+            });
+
+            console.log(`Process ID ${processes[idx].id} completed at time ${time}, Turnaround Time: ${turnaroundTime}, Waiting Time: ${waitingTime}`); // Debugging process completion
+        }
+    }
+
+    // Sort results by Process ID
+    results.sort((a, b) => a.id - b.id);
+
+    console.log(`Total Idle Time: ${totalIdleTime}`); // Debugging total idle time
+
+    return { results, totalIdleTime, totalBurstTime };
+}
+
+    
+  </script>
+</body>
+</html>

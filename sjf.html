@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SJF</title>
+    <!-- <link rel="stylesheet" href="mainstyle.css"> -->
+    <style>
+        body {
+        background-color: black;
+        font-family: Arial, Helvetica, sans-serif;
+        text-align: center;
+        color: white;
+        margin: 0;
+        padding: 0;
+        height: 100vh; /* Set height to allow scrolling */
+        overflow-y: auto; /* Enable vertical scrolling */
+      }
+      
+      .container {
+        background-color: #353333;
+        width: 90%;
+        margin: 20px auto; /* Add margin so the content doesn’t touch the sides */
+        border-radius: 10px;
+        padding: 20px;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Subtle outer shadow */
+      
+        border-radius: 10px;
+        border: 5px solid transparent;
+        background-clip: padding-box;
+        animation: borderAnimation 4s ease-in-out infinite; /* Animation for border */
+      }
+      
+      .content-container {
+        width: 100%;
+        /* background-color: #004d8f; */
+      }
+      
+      .title {
+        background-color: #232325;
+        width: 98%;
+        margin: 0 auto;
+        border-radius: 15px;
+        padding: 10px;
+        box-shadow: 
+          inset 4px 4px 8px rgba(0, 0, 0, 0.6), /* Dark shadow for depth */
+          inset -4px -4px 8px rgba(255, 255, 255, 0.2); /* Light shadow for highlight */
+      
+        border: 5px solid transparent;
+        background-clip: padding-box;
+        animation: borderAnimation 4s ease-in-out infinite; 
+      }
+      
+      @keyframes borderAnimation {
+        0% {
+          border-color: rgba(255, 111, 97, 0.5); /* Slightly transparent */
+          box-shadow: 0 0 30px rgba(255, 111, 97, 0.8);
+        }
+        50% {
+          border-color: rgba(106, 27, 154, 0.5);
+          box-shadow: 0 0 30px rgba(106, 27, 154, 0.8);
+        }
+        100% {
+          border-color: rgba(0, 68, 204, 0.5);
+          box-shadow: 0 0 30px rgba(0, 68, 204, 0.8);
+        }
+      }
+      
+      
+      h1 {
+        margin: 0;
+        font-size: 32px;
+      }
+      
+      h1.up {
+        color: #F9F9F9;
+      }
+      
+      h1.down {
+        color: #00C8FF;
+      }
+      
+      .button-container {
+        padding: 20px 0;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+      
+      .button {
+        padding: 10px 30px;
+        border-radius: 5px;
+        border: none;
+        background-color: #007BFF;
+        color: white;
+        cursor: pointer;
+        text-transform: capitalize;
+        font-weight: bold;
+      }
+      
+      .button:hover {
+        background-color: #004d8f;
+        color: white;
+      }
+      
+      button#addRow {
+        background-color: #4CAF50;
+      }
+      
+      button#addRow:hover {
+        background-color: #45a049;
+      }
+      
+      .button.reset {
+        background-color: #DC3545;
+      }
+      
+      .button.reset:hover {
+        background-color: #a71d2a;
+      }
+      
+      table {
+        width: 95%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        margin: 0 auto;
+      }
+      
+      th, td {
+        border: 2px solid white;
+        text-align: center;
+        padding: 10px;
+      }
+      
+      th {
+        background-color: #232325;
+      }
+      
+      td {
+        color: white;
+      }
+      
+      input[type="number"] {
+        width: 80px;
+        padding: 5px;
+        border: 1px solid white;
+        border-radius: 4px;
+        background-color: #232325;
+        color: white;
+        text-align: center;
+      }
+      
+      p {
+        font-size: 16px;
+        margin: 5px 0;
+        color: white;
+      }
+      
+      .formulas-container {
+        width: 90% auto;
+        display: flex;
+        flex-direction: row; 
+        justify-content: space-between;
+        align-items: stretch;
+        gap: 20px;
+        padding: 20px;
+      }
+      
+      .section {
+        flex: 1;
+        max-width: 400px;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      
+      .formula {
+        margin-top: 10px;
+        font-size: 1rem;
+        color: #333;
+        color: white;
+      }
+      
+      .highlight {
+        font-weight: bold;
+        border: 1px solid #004d8f;
+        padding: 5px;
+      }
+      
+      @media (max-width: 768px) {
+        table {
+          width: 100%;
+          font-size: 12px; /* Smaller font size */
+        }
+      
+        th, td {
+          padding: 6px; /* Reduced padding for smaller screens */
+          font-size: 12px; /* Smaller font size */
+        }
+      
+        h1 {
+          font-size: 22px; /* Reduced title font size for small screens */
+        }
+      
+        .button-container {
+          gap: 5px; /* Adjust button gap on smaller screens */
+        }
+      }
+    </style>
+    
+      
+</head>
+<body>
+    <div class="container">
+        <div class="title">
+          <h1 class="up">Non-Preemptive</h1>
+          <h1 class="down">Shortest Job First (SJF)</h1>
+        </div>
+    
+        <div class="content-container">
+          <div class="button-container">
+            <button id="addRow" class="button add">Add Process</button>
+            <button id="calculate" class="button">Calculate</button>
+            <button id="resetTable" class="button reset">Reset</button>
+          </div>
+    
+          <table id="dataTable">
+            <thead>
+              <tr>
+                <th>Process ID</th>
+                <th>Arrival Time (AT)</th>
+                <th>Burst Time (BT)</th>
+                <th>End Time (ET)</th>
+                <th>Turnaround Time (TT)</th>
+                <th>Waiting Time (WT)</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><input type="number" class="arrivalTime" placeholder="AT" min="0" /></td>
+                <td><input type="number" class="burstTime" placeholder="BT" min="0" /></td>
+                <td class="endTime">-</td>
+                <td class="turnaroundTime">-</td>
+                <td class="waitingTime">-</td>
+                <td><button class="button remove" onclick="removeRow(this)">Remove</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="gantt chart">
+            <h2>Gantt Chart</h2>
+          </div>
+          <div class="formulas-container">
+            <div class="section">
+              <p class="tooltip">CPU Utilization</p>
+              <p id="cpuUtilizationFormula" class="formula">
+                (<span id="cpuBusy">Sum (BT)</span> / <span id="totalTime">Total End Time</span>) × 100 = <span id="cpuUtilizationResult" class="highlight">0%</span>
+              </p>
+            </div>
+        
+            <div class="section">
+              <p class="tooltip">Average Turnaround Time</p>
+              <p id="attFormula" class="formula">
+                <span id="totalTurnaroundTime">Total TT</span> / <span id="totalProcessesTT">Process</span> = <span id="attResult" class="highlight">0</span>
+              </p>
+            </div>
+        
+            <div class="section">
+              <p class="tooltip">Average Waiting Time</p>
+              <p id="awtFormula" class="formula">
+                <span id="totalWaitingTime">Total WT</span> / <span id="totalProcessesWT">Process</span> = <span id="awtResult" class="highlight">0</span>
+              </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('addRow').addEventListener('click', addRow);
+        const resetTableButton = document.getElementById('resetTable');
+        let processCounter = 2; // Initialize Process ID as 2 since the first one is pre-filled
+
+        // Function to add a new row to the table
+        function addRow() {
+            const table = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+            
+            // Create a new row
+            const newRow = table.insertRow(table.rows.length);
+            
+            // Add HTML for new row with incremented Process ID and inputs for Arrival Time and Burst Time
+            newRow.innerHTML = `
+                <td>${processCounter}</td>
+                <td><input type="number" class="arrivalTime" placeholder="AT" min="0"></td>
+                <td><input type="number" class="burstTime" placeholder="BT" min="0"></td>
+                <td class="endTime">-</td>
+                <td class="turnaroundTime">-</td>
+                <td class="waitingTime">-</td>
+                <td><button class="button remove" onclick="removeRow(this)">Remove</button></td>
+            `;
+            
+            processCounter++; // Increment the Process ID counter
+        }
+
+        // Function to remove a row from the table
+        function removeRow(button) {
+            const row = button.closest('tr');
+            row.remove();
+            
+            // Update Process IDs after removal
+            updateProcessIds();
+        }
+
+        // Function to update Process IDs after removal
+        function updateProcessIds() {
+            const rows = document.getElementById('dataTable').getElementsByTagName('tr');
+            let counter = 1;
+            
+            for (let row of rows) {
+                const cells = row.getElementsByTagName('td');
+                if (cells.length > 0) { // Skip the header row
+                    cells[0].textContent = counter; // Update Process ID
+                    counter++;
+                }
+            }
+        }
+
+        
+    resetTableButton.addEventListener('click', () => {
+    const tableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+    const rows = tableBody.querySelectorAll('tr');
+    
+    // Remove all dynamic rows except the first one (the header)
+    rows.forEach((row, index) => {
+        if (index !== 0) {  // Skip the first row
+            row.remove();   // Remove dynamic rows
+        }
+    });
+
+    processCounter = 2;
+
+    // Reset first row (pre-filled)
+    const firstRowCells = rows[0].querySelectorAll('td');
+    firstRowCells[1].innerHTML = '<input type="number" class="arrivalTime" placeholder="AT" min="0">';
+    firstRowCells[2].innerHTML = '<input type="number" class="burstTime" placeholder="BT" min="0">';
+    ["3", "4", "5"].forEach(i => (firstRowCells[i].textContent = "-"));
+
+    // Hide result headers and columns
+    document.querySelectorAll('.result-header').forEach(header => header.classList.add('hidden'));
+    document.querySelectorAll('.result').forEach(cell => cell.classList.add('hidden'));
+
+    // Reset CPU, AWT, ATT values to default
+    document.getElementById("totalTurnaroundTime").textContent = "Total TT";
+    document.getElementById("totalProcessesTT").textContent = "Processes";
+    document.getElementById("attResult").textContent = " 0";
+
+    document.getElementById("totalWaitingTime").textContent = "Total WT";
+    document.getElementById("totalProcessesWT").textContent = "processes";
+    document.getElementById("awtResult").textContent = " 0";
+
+    document.getElementById("cpuBusy").textContent = "Sum (BT)";
+    document.getElementById("totalTime").textContent = "Total End Time";
+    document.getElementById("cpuUtilizationResult").textContent = " 0%";
+});
+
+    </script>
+</body>
+</html>
