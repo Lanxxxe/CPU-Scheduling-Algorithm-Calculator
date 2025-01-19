@@ -41,6 +41,7 @@ const handleAddRow = () => {
     <td class="endTime">-</td>
     <td class="turnaroundTime">-</td>
     <td class="waitingTime">-</td>
+    <td><button onclick="removeRow(this)" class="button remove">Remove</button></td>
   `;
   dataTable.appendChild(row);
   processCounter++;
@@ -76,6 +77,29 @@ const handleResetButton = () => {
   // Clear Gantt chart
   const ganttDiv = document.querySelector('.gantt.chart');
   ganttDiv.innerHTML = '<h2>Gantt Chart</h2>';
+}
+
+function removeRow(button) {
+  const row = button.closest('tr');
+  row.remove();
+  
+  // Update Process IDs after removal
+  processCounter--; // Increment the Process
+  updateProcessIds();
+}
+
+// Function to update Process IDs after removal
+function updateProcessIds() {
+  const rows = document.getElementById('dataTable').getElementsByTagName('tr');
+  let counter = 1;
+  
+  for (let row of rows) {
+      const cells = row.getElementsByTagName('td');
+      if (cells.length > 0) { // Skip the header row
+          cells[0].textContent = counter; // Update Process ID
+          counter++;
+      }
+  }
 }
 
 // Function to render Gantt chart
@@ -225,6 +249,7 @@ const handleCalculateButton = () => {
   let currentTime = 0;
   let totalTurnaroundTime = 0;
   let totalWaitingTime = 0;
+  let cpuBusyTime = 0;  // Initialize CPU busy time
 
   processes.forEach((process, index) => {
     if (currentTime < process.arrivalTime) {
@@ -245,20 +270,31 @@ const handleCalculateButton = () => {
 
     totalTurnaroundTime += turnaroundTime;
     totalWaitingTime += waitingTime;
+    cpuBusyTime += process.burstTime;  // Accumulate CPU busy time
     currentTime = endTime; // Update current time to the end of the current process
   });
 
-  // Display final results
+  // Calculate final results
   const totalProcesses = processes.length;
   const averageTurnaroundTime = (totalTurnaroundTime / totalProcesses).toFixed(2);
   const averageWaitingTime = (totalWaitingTime / totalProcesses).toFixed(2);
+  const cpuUtilization = ((cpuBusyTime / currentTime) * 100).toFixed(2); // Correct CPU utilization
 
+  // Display final results
+  document.getElementById("totalTurnaroundTime").textContent = totalTurnaroundTime;
+  document.getElementById("totalProcessesTT").textContent = totalProcesses;
   document.getElementById("attResult").textContent = averageTurnaroundTime;
+
+  document.getElementById("totalWaitingTime").textContent = totalWaitingTime;
+  document.getElementById("totalProcessesWT").textContent = totalProcesses;
   document.getElementById("awtResult").textContent = averageWaitingTime;
+
+  document.getElementById("cpuBusy").textContent = cpuBusyTime;
+  document.getElementById("totalTime").textContent = currentTime;
+  document.getElementById("cpuUtilizationResult").textContent = `${cpuUtilization}%`;
 
   renderGanttChart(processes);
 }
-
 
 // Calculate Button Event
 calculateButton.addEventListener("click", handleCalculateButton);
@@ -266,7 +302,3 @@ calculateButton.addEventListener("click", handleCalculateButton);
 addRowButton.addEventListener("click", handleAddRow);
 // Reset Table Event
 resetButton.addEventListener('click', handleResetButton);
-
-
-
-

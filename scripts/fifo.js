@@ -35,13 +35,14 @@ const getProcessColor = (processId) => {
 const handleAddRow = () => {
     const row = document.createElement('tr');
     row.innerHTML = `
-    <td>${processCounter}</td>
-    <td><input type="number" class="arrivalTime" placeholder="AT" min="0"></td>
-    <td><input type="number" class="burstTime" placeholder="BT" min="0"></td>
-    <td class="endTime">-</td>
-    <td class="turnaroundTime">-</td>
-    <td class="waitingTime">-</td>
-    `;
+        <td>${processCounter}</td>
+        <td><input type="number" class="arrivalTime" placeholder="AT" min="0"></td>
+        <td><input type="number" class="burstTime" placeholder="BT" min="0"></td>
+        <td class="endTime">-</td>
+        <td class="turnaroundTime">-</td>
+        <td class="waitingTime">-</td>
+        <td><button onclick="removeRow(this)" class="button remove">Remove</button></td>
+        `;
     dataTable.appendChild(row);
     processCounter++;
 }
@@ -82,6 +83,29 @@ const handleResetButton = () => {
     // Clear Gantt chart
     const ganttDiv = document.querySelector('.gantt.chart');
     ganttDiv.innerHTML = '<h2>Gantt Chart</h2>';
+}
+
+function removeRow(button) {
+    const row = button.closest('tr');
+    row.remove();
+    
+    // Update Process IDs after removal
+    processCounter--; // Increment the Process
+    updateProcessIds();
+}
+
+// Function to update Process IDs after removal
+function updateProcessIds() {
+    const rows = document.getElementById('dataTable').getElementsByTagName('tr');
+    let counter = 1;
+    
+    for (let row of rows) {
+        const cells = row.getElementsByTagName('td');
+        if (cells.length > 0) { // Skip the header row
+            cells[0].textContent = counter; // Update Process ID
+            counter++;
+        }
+    }
 }
 
 // Function to render Gantt chart

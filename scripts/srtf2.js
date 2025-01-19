@@ -32,6 +32,8 @@ const getProcessColor = (processId) => {
 const handleAddRow = () => {
     const table = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
     const row = table.insertRow();
+    const processId = table.rows.length; // Use the number of rows as the process ID
+
     row.innerHTML = `
         <td>${processId}</td>
         <td><input type="number" class="arrivalTime" placeholder="AT" min="0" /></td>
@@ -39,9 +41,11 @@ const handleAddRow = () => {
         <td class="endTime">-</td>
         <td class="turnaroundTime">-</td>
         <td class="waitingTime">-</td>
+        <td><button onclick="removeRow(this)" class="button remove">Remove</button></td>
     `;
-    processId++;
-}
+};
+
+
 
 const handleReset = () => {
     const table = document.getElementById("dataTable");
@@ -75,6 +79,28 @@ const handleReset = () => {
     document.getElementById("totalTime").textContent = "Total End Time";
     document.getElementById("cpuUtilizationResult").textContent = "0%";
 }
+
+const removeRow = (button) => {
+    const row = button.closest("tr"); // Get the row containing the clicked button
+    row.remove(); // Remove the row from the table
+    
+    updateProcessIds(); // Update Process IDs for remaining rows
+};
+
+
+const updateProcessIds = () => {
+    const rows = document.querySelectorAll("#dataTable tbody tr"); // Target rows in tbody
+    let counter = 1; // Start process ID from 1
+
+    rows.forEach((row) => {
+        const processIdCell = row.querySelector("td:first-child"); // First cell in the row
+        if (processIdCell) {
+            processIdCell.textContent = counter; // Update process ID
+            counter++;
+        }
+    });
+};
+
 
 const srtfCalculation = (processes) => {
     let time = 0;
@@ -231,7 +257,12 @@ const calculate = () => {
         const burstTime = parseInt(row.querySelector(".burstTime").value);
 
         if (!isNaN(arrivalTime) && !isNaN(burstTime)) {
-            processes.push({ id: index + 1, arrivalTime, burstTime, remainingTime: burstTime });
+            processes.push({
+                id: index + 1,
+                arrivalTime,
+                burstTime,
+                remainingTime: burstTime,
+            });
         }
     });
 
@@ -269,9 +300,7 @@ const calculate = () => {
     document.getElementById("awtResult").textContent = avgWaitingTime.toFixed(2);
 
     renderGanttChart(executionSequence);
-}
-
-
+};
 
 
 // Add new row to the table

@@ -27,37 +27,58 @@ const getProcessColor = (processId) => {
 
 const handleAddRow = () => {
     const table = document.getElementById('processTable').getElementsByTagName('tbody')[0];
+    
+    // Check if there are rows in the table
     const lastRow = table.rows[table.rows.length - 1]; // Get the last row
-    const lastProcessId = lastRow ? parseInt(lastRow.cells[0].firstChild.value) : 0; // Get the last process ID or 0 if no rows
+    const lastProcessId = lastRow ? parseInt(lastRow.cells[0].innerText) : 0; // Get the last process ID or 0 if no rows
     const newProcessId = lastProcessId + 1; // Auto-increment the process ID
     
+    // Insert a new row at the end of the table
     const newRow = table.insertRow(table.rows.length);
-    newRow.innerHTML = ` 
-        <td><input type="number" value="${newProcessId}" disabled></td>
-       <td><input type="number" placeholder="AT" min="0"></td>
-                <td><input type="number" placeholder="BT" min="0"></td>
-                <td><input type="number" placeholder="--" disabled></td>
-                <td><button onclick="removeRow(this)" class="button remove">Remove</button></td>
+
+    // Populate the new row with cells
+    newRow.innerHTML = `
+        <td>${newProcessId}</td>
+        <td><input type="number" placeholder="AT" min="0"></td>
+        <td><input type="number" placeholder="BT" min="0"></td>
+        <td class="endTime">-</td>
+        <td class="turnaroundTime">-</td>
+        <td class="waitingTime">-</td>
+        <td><button onclick="removeRow(this)" class="button remove">Remove</button></td>
     `;
-}
+};
 
 const handleResetButton = () => {
-    const rows = dataTable.querySelectorAll('tr');
-    rows.forEach((row, index) => {
-      if (index !== 0) {
-        row.remove();
-      }
-    });
-    processCounter = 2;
-  
-    // Reset first row
-    const firstRowCells = rows[0].querySelectorAll('td');
-    firstRowCells[1].innerHTML = '<input type="number" class="arrivalTime" placeholder="AT">';
-    firstRowCells[2].innerHTML = '<input type="number" class="burstTime" placeholder="BT">';
-    firstRowCells[3].innerHTML = '<input type="number" class="priority" placeholder="Priority">';
-    ["4", "5", "6"].forEach(i => (firstRowCells[i].textContent = "-"));
+    // Reference to the data table
+    const dataTable = document.querySelector("#processTable tbody");
+    const rows = dataTable.querySelectorAll("tr");
     
-    // Reset results
+    // Remove all rows except the first one
+    rows.forEach((row, index) => {
+        if (index !== 0) {
+            row.remove();
+        }
+    });
+
+    // Reset first row inputs
+    const firstRow = rows[0];
+    if (firstRow) {
+        const firstRowCells = firstRow.querySelectorAll("td");
+        firstRowCells[1].innerHTML = '<input type="number" class="arrivalTime" placeholder="AT">';
+        firstRowCells[2].innerHTML = '<input type="number" class="burstTime" placeholder="BT">';
+        firstRowCells[3].textContent = "-"; // End Time
+        firstRowCells[4].textContent = "-"; // Turnaround Time
+        firstRowCells[5].textContent = "-"; // Waiting Time
+    }
+
+    // Reset process counter
+    let processCounter = 2; // Adjust this variable based on its scope in your code
+
+    // Hide result headers and cells
+    document.querySelectorAll(".result-header").forEach(header => header.classList.add("hidden"));
+    document.querySelectorAll(".result").forEach(cell => cell.classList.add("hidden"));
+
+    // Reset result fields
     document.getElementById("totalTurnaroundTime").textContent = "Total TT";
     document.getElementById("totalProcessesTT").textContent = "Processes";
     document.getElementById("attResult").textContent = "0";
@@ -67,16 +88,33 @@ const handleResetButton = () => {
     document.getElementById("cpuBusy").textContent = "Sum (BT)";
     document.getElementById("totalTime").textContent = "Total End Time";
     document.getElementById("cpuUtilizationResult").textContent = "0%";
-  
+
     // Clear Gantt chart
-    const ganttDiv = document.querySelector('.gantt.chart');
-    ganttDiv.innerHTML = '<h2>Gantt Chart</h2>';
-}
+    const ganttDiv = document.querySelector(".gantt.chart");
+    if (ganttDiv) {
+        ganttDiv.innerHTML = "<h2>Gantt Chart</h2>";
+    }
+};
 
 const removeRow = (button) => {
-    const row = button.closest('tr');
-    row.remove();
-}
+    const row = button.closest("tr"); // Get the row containing the clicked button
+    row.remove(); // Remove the row from the table
+
+    updateProcessIds(); // Update Process IDs for remaining rows
+};
+
+const updateProcessIds = () => {
+    const rows = document.querySelectorAll("#processTable tbody tr"); // Target rows in tbody
+    let counter = 1; // Start process ID from 1
+
+    rows.forEach((row) => {
+        const processIdCell = row.querySelector("td:first-child"); // First cell in the row
+        if (processIdCell) {
+            processIdCell.textContent = counter; // Update process ID
+            counter++;
+        }
+    });
+};
 
 const renderGanttChart = (processes) => {
     const ganttDiv = document.querySelector('.gantt.chart');
@@ -213,13 +251,15 @@ const calculateSJF = () => {
         completed: false,
     }));
 
-    processes.sort((a, b) => a.arrivalTime - b.arrivalTime); // Sort by arrival time
+    // Sort processes by arrival time
+    processes.sort((a, b) => a.arrivalTime - b.arrivalTime);
+
     let currentTime = 0;
     let completedProcesses = 0;
     const ganttChartData = [];
 
     while (completedProcesses < processes.length) {
-        // Select the next process with the shortest burst time that has arrived
+        // Find the next process with the shortest burst time that has arrived
         let selectedProcess = null;
 
         for (const process of processes) {
@@ -233,7 +273,7 @@ const calculateSJF = () => {
         }
 
         if (selectedProcess) {
-            // Process the selected process
+            // Process the selected task
             const startTime = currentTime;
             const endTime = startTime + selectedProcess.burstTime;
 
@@ -261,15 +301,19 @@ const calculateSJF = () => {
         }
     }
 
-    // Calculate totals and averages
+    // Calculate totals
     const totalTurnaroundTime = processes.reduce((sum, p) => sum + p.turnaroundTime, 0);
     const totalWaitingTime = processes.reduce((sum, p) => sum + p.waitingTime, 0);
-    const totalBurstTime = processes.reduce((sum, p) => sum + p.burstTime, 0);
-    const totalEndTime = processes[processes.length - 1].endTime;
-    const cpuUtilization = ((totalBurstTime / totalEndTime) * 100).toFixed(2);
+    const totalBurstTime = processes.reduce((sum, p) => sum + p.burstTime, 0); // CPU busy time
+    const totalTime = currentTime; // Total time includes idle + processing time
+    const idleTime = totalTime - totalBurstTime;
+    const cpuUtilization = ((totalBurstTime / totalTime) * 100).toFixed(2);
 
     // Display results
+    document.getElementById("cpuBusy").textContent = totalBurstTime;
+    document.getElementById("totalTime").textContent = totalTime;
     document.getElementById("cpuUtilizationResult").textContent = `${cpuUtilization}%`;
+
     document.getElementById("totalTurnaroundTime").textContent = totalTurnaroundTime;
     document.getElementById("totalProcessesTT").textContent = processes.length;
     document.getElementById("attResult").textContent = (totalTurnaroundTime / processes.length).toFixed(3);
@@ -279,15 +323,13 @@ const calculateSJF = () => {
     document.getElementById("awtResult").textContent = (totalWaitingTime / processes.length).toFixed(3);
 
     processes.forEach(process => {
-        const endTimeCell = process.rowElement.querySelector("td:nth-child(4) input");
-        endTimeCell.value = process.endTime;
+        process.rowElement.querySelector("td:nth-child(4)").textContent = process.endTime;
+        process.rowElement.querySelector("td:nth-child(5)").textContent = process.turnaroundTime;
+        process.rowElement.querySelector("td:nth-child(6)").textContent = process.waitingTime;
     });
 
     // Render Gantt Chart
     renderGanttChart(ganttChartData);
-}
-
-
-
+};
 
 

@@ -29,26 +29,22 @@
               <th>Arrival Time</th>
               <th>Burst Time</th>
               <th>End Time</th>
+              <th>Turnaround Time (TT)</th>
+              <th>Waiting Time (WT)</th>
               <th>Actions</th>
           </tr>
       </thead>
       <tbody>
           <tr>
-              <td><input type="number" value="1" disabled></td>
+              <td>1</td>
               <td><input type="number" placeholder="AT" min="0"></td>
               <td><input type="number" placeholder="BT" min="0"></td>
-              <td><input type="number" placeholder="--" disabled></td>
+              <td class="endTime">-</td>
+              <td class="turnaroundTime">-</td>
+              <td class="waitingTime">-</td>
               <td><button onclick="removeRow(this)" class="button remove">Remove</button></td>
           </tr>
-          <tr>
-              <td><input type="number" value="2" disabled></td>
-              <td><input type="number" placeholder="AT" min="0"></td>
-              <td><input type="number" placeholder="BT" min="0"></td>
-              <td><input type="number" placeholder="--" disabled></td>
-              <td><button onclick="removeRow(this)" class="button remove">Remove</button></td>
-          </tr>
-        
-          
+
       </tbody>
     </table>
 

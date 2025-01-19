@@ -42,6 +42,7 @@ const handleAddRow = () => {
     <td class="endTime">-</td>
     <td class="turnaroundTime">-</td>
     <td class="waitingTime">-</td>
+    <td><button onclick="removeRow(this)" class="button remove">Remove</button></td>
   `;
 }
 
@@ -55,18 +56,50 @@ const handleResetButton = () => {
       <td class="endTime">-</td>
       <td class="turnaroundTime">-</td>
       <td class="waitingTime">-</td>
+      <td><button onclick="removeRow(this)" class="button remove">Remove</button></td>
     </tr>
   `;
   processCount = 1;
 
   // Clear quantum and results
   document.getElementById("timeQuantum").value = "";
-  document.getElementById("cpuUtilizationResult").textContent = "0%";
-  document.getElementById("attResult").textContent = "0";
-  document.getElementById("awtResult").textContent = "0";
-  document.getElementById("ganttChart").textContent = "-";
+
+  document.getElementById("totalTurnaroundTime").textContent = "Total TT";
+  document.getElementById("totalProcessesTT").textContent = "Processes";
+  document.getElementById("attResult").textContent = " 0";
+
+  document.getElementById("totalWaitingTime").textContent = "Total WT";
+  document.getElementById("totalProcessesWT").textContent = "processes";
+  document.getElementById("awtResult").textContent = " 0";
+
+  document.getElementById("cpuBusy").textContent = "Sum (BT)";
+  document.getElementById("totalTime").textContent = "Total End Time";
+  document.getElementById("cpuUtilizationResult").textContent = " 0%";
+
+  const ganttDiv = document.querySelector('.gantt.chart');
+    ganttDiv.innerHTML = '<h2>Gantt Chart</h2>';
 }
 
+const removeRow = (button) => {
+  const row = button.closest("tr"); // Get the row containing the clicked button
+  row.remove(); // Remove the row from the table
+  processCount--;
+  updateProcessIds(); // Update Process IDs for remaining rows
+};
+
+
+const updateProcessIds = () => {
+  const rows = document.querySelectorAll("#dataTable tbody tr"); // Target rows in tbody
+  let counter = 1; // Start process ID from 1
+
+  rows.forEach((row) => {
+      const processIdCell = row.querySelector("td:first-child"); // First cell in the row
+      if (processIdCell) {
+          processIdCell.textContent = counter; // Update process ID
+          counter++;
+      }
+  });
+};
 // Calculate Round Robin Scheduling
 const calculateSchedule = () => {
     const timeQuantum = parseInt(document.getElementById("timeQuantum").value);
