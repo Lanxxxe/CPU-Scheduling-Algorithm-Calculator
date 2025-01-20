@@ -45,8 +45,6 @@ const handleAddRow = () => {
     `;
 };
 
-
-
 const handleReset = () => {
     const table = document.getElementById("dataTable");
     const rows = table.querySelectorAll("tbody tr");

@@ -102,89 +102,30 @@ function updateProcessIds() {
   }
 }
 
-// Function to render Gantt chart
-const renderGanttChart = (processes) => {
+// Gantt Chart Rendering Function
+function renderGanttChart(processes) {
   const ganttDiv = document.querySelector('.gantt.chart');
   ganttDiv.innerHTML = '<h2>Gantt Chart - Priority</h2>';
-  
-  // Create legend
-  const legendContainer = document.createElement('div');
-  legendContainer.className = 'gantt-legend';
-  legendContainer.style.cssText = 'margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px;';
 
-  // Get unique processes for legend
-  const uniqueProcesses = [...new Set(processes.map(p => p.process))];
-  uniqueProcesses.sort((a, b) => a - b);
-
-  // Create legend items
-  uniqueProcesses.forEach(processId => {
-      const legendItem = document.createElement('div');
-      legendItem.style.cssText = 'display: flex; align-items: center; margin-right: 15px;';
-      
-      const colorBox = document.createElement('div');
-      colorBox.style.cssText = `
-          width: 20px;
-          height: 20px;
-          margin-right: 5px;
-          background-color: ${getProcessColor(parseInt(processId))};
-          border: 1px solid #666;
-      `;
-      
-      const label = document.createElement('span');
-      label.textContent = `Process ${processId}`;
-      
-      legendItem.appendChild(colorBox);
-      legendItem.appendChild(label);
-      legendContainer.appendChild(legendItem);
-  });
-  
   const chartContainer = document.createElement('div');
-  chartContainer.className = 'gantt-container';
   chartContainer.style.cssText = 'position: relative; margin-top: 20px; padding: 10px;';
 
   const totalTime = Math.max(...processes.map(p => p.endTime));
   const containerWidth = 800;
   const scale = containerWidth / totalTime;
 
-  // Create process bars
   processes.forEach(process => {
-      const startTime = process.endTime - process.burstTime;
-      if (startTime > 0) {
-          // Add idle time bar if there's a gap
-          const idleBar = document.createElement('div');
-          const prevEndTime = processes[processes.indexOf(process) - 1]?.endTime || 0;
-          if (startTime > prevEndTime) {
-              const idleWidth = (startTime - prevEndTime) * scale;
-              idleBar.style.cssText = `
-                  position: absolute;
-                  height: 40px;
-                  width: ${idleWidth}px;
-                  left: ${prevEndTime * scale}px;
-                  top: 20px;
-                  background-color: #f0f0f0;
-                  border: 1px solid #666;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  font-size: 12px;
-                  color: #666;
-              `;
-              idleBar.textContent = 'Idle';
-              chartContainer.appendChild(idleBar);
-          }
-      }
-
       const bar = document.createElement('div');
-      const width = process.burstTime * scale;
-      const left = startTime * scale;
-      
+      const width = (process.endTime - process.startTime) * scale;
+      const left = process.startTime * scale;
+
       bar.style.cssText = `
           position: absolute;
           height: 40px;
           width: ${width}px;
           left: ${left}px;
           top: 20px;
-          background-color: ${getProcessColor(parseInt(process.process))};
+          background-color: #${Math.floor(Math.random() * 16777215).toString(16)};
           border: 1px solid #666;
           display: flex;
           align-items: center;
@@ -192,17 +133,15 @@ const renderGanttChart = (processes) => {
           font-size: 12px;
           color: white;
       `;
-      
+
       bar.textContent = `P${process.process}`;
       bar.title = `Process ${process.process}
-      Start Time: ${startTime}
-      End Time: ${process.endTime}
-      Burst Time: ${process.burstTime}`;
-            
+Start Time: ${process.startTime}
+End Time: ${process.endTime}`;
+
       chartContainer.appendChild(bar);
   });
 
-  // Create time markers
   const timelineContainer = document.createElement('div');
   timelineContainer.style.cssText = 'position: relative; height: 20px; margin-top: 70px;';
 
@@ -220,65 +159,77 @@ const renderGanttChart = (processes) => {
   }
 
   chartContainer.appendChild(timelineContainer);
-  // ganttDiv.appendChild(legendContainer);
   ganttDiv.appendChild(chartContainer);
 }
-
 
 const handleCalculateButton = () => {
   const rows = Array.from(dataTable.querySelectorAll("tr"));
   const processes = rows.map(row => {
-    return {
-      process: row.querySelector("td:first-child").textContent,
-      arrivalTime: parseInt(row.querySelector(".arrivalTime").value || 0),
-      burstTime: parseInt(row.querySelector(".burstTime").value || 0),
-      priority: parseInt(row.querySelector(".priority").value || 0),
-      endTime: 0,
-      rowElement: row
-    };
-  });
-
-  // Sort processes by arrival time first, then priority
-  processes.sort((a, b) => {
-    if (a.arrivalTime === b.arrivalTime) {
-      return a.priority - b.priority; // Lower priority number = higher priority
-    }
-    return a.arrivalTime - b.arrivalTime;
+      return {
+          process: row.querySelector("td:first-child").textContent,
+          arrivalTime: parseInt(row.querySelector(".arrivalTime").value || 0),
+          burstTime: parseInt(row.querySelector(".burstTime").value || 0),
+          priority: parseInt(row.querySelector(".priority").value || 0),
+          endTime: 0,
+          isCompleted: false, // Track if the process is completed
+          rowElement: row
+      };
   });
 
   let currentTime = 0;
   let totalTurnaroundTime = 0;
   let totalWaitingTime = 0;
-  let cpuBusyTime = 0;  // Initialize CPU busy time
+  let cpuBusyTime = 0;
 
-  processes.forEach((process, index) => {
-    if (currentTime < process.arrivalTime) {
-      currentTime = process.arrivalTime; // CPU idle until process arrives
-    }
+  // Resulting processes in the order they are executed
+  const executedProcesses = [];
 
-    const startTime = currentTime;
-    const endTime = startTime + process.burstTime;
-    const turnaroundTime = endTime - process.arrivalTime;
-    const waitingTime = turnaroundTime - process.burstTime;
+  // Keep running until all processes are completed
+  while (processes.some(process => !process.isCompleted)) {
+      // Find all processes that have arrived and are not completed
+      const availableProcesses = processes.filter(
+          process => process.arrivalTime <= currentTime && !process.isCompleted
+      );
 
-    process.endTime = endTime;
+      if (availableProcesses.length > 0) {
+          // Select the process with the highest priority (lowest priority number)
+          availableProcesses.sort((a, b) => a.priority - b.priority);
+          const process = availableProcesses[0];
 
-    // Update the table rows with calculated values
-    process.rowElement.querySelector(".endTime").textContent = endTime;
-    process.rowElement.querySelector(".turnaroundTime").textContent = turnaroundTime;
-    process.rowElement.querySelector(".waitingTime").textContent = waitingTime;
+          const startTime = currentTime;
+          const endTime = startTime + process.burstTime;
+          const turnaroundTime = endTime - process.arrivalTime;
+          const waitingTime = turnaroundTime - process.burstTime;
 
-    totalTurnaroundTime += turnaroundTime;
-    totalWaitingTime += waitingTime;
-    cpuBusyTime += process.burstTime;  // Accumulate CPU busy time
-    currentTime = endTime; // Update current time to the end of the current process
-  });
+          process.endTime = endTime;
+          process.isCompleted = true; // Mark process as completed
+
+          // Update the table rows with calculated values
+          process.rowElement.querySelector(".endTime").textContent = endTime;
+          process.rowElement.querySelector(".turnaroundTime").textContent = turnaroundTime;
+          process.rowElement.querySelector(".waitingTime").textContent = waitingTime;
+
+          totalTurnaroundTime += turnaroundTime;
+          totalWaitingTime += waitingTime;
+          cpuBusyTime += process.burstTime;
+          currentTime = endTime;
+
+          executedProcesses.push({
+              process: process.process,
+              startTime: startTime,
+              endTime: endTime
+          });
+      } else {
+          // If no processes have arrived yet, increment currentTime
+          currentTime++;
+      }
+  }
 
   // Calculate final results
   const totalProcesses = processes.length;
   const averageTurnaroundTime = (totalTurnaroundTime / totalProcesses).toFixed(2);
   const averageWaitingTime = (totalWaitingTime / totalProcesses).toFixed(2);
-  const cpuUtilization = ((cpuBusyTime / currentTime) * 100).toFixed(2); // Correct CPU utilization
+  const cpuUtilization = ((cpuBusyTime / currentTime) * 100).toFixed(2);
 
   // Display final results
   document.getElementById("totalTurnaroundTime").textContent = totalTurnaroundTime;
@@ -293,7 +244,8 @@ const handleCalculateButton = () => {
   document.getElementById("totalTime").textContent = currentTime;
   document.getElementById("cpuUtilizationResult").textContent = `${cpuUtilization}%`;
 
-  renderGanttChart(processes);
+  // Render Gantt chart
+  renderGanttChart(executedProcesses);
 }
 
 // Calculate Button Event
